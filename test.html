@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}POSystem - Reportes{% endblock %}
+{% block content %}
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+
+    <h2 class="text-center mb-4">Clientes</h2>
+    <form class="row g-3 mb-3" method="get" action="{{ url_for('reportes') }}">
+        <div class="col-md-3">
+            <input type="text" class="form-control" name="rif" placeholder="Buscar por RUC" value="{{ filtro_rif }}">
+        </div>
+        <div class="col-md-3">
+            <input type="text" class="form-control" name="nombre" placeholder="Buscar por Nombre" value="{{ filtro_nombre }}">
+        </div>
+        <div class="col-md-3">
+            <input type="text" class="form-control" name="dircorreo" placeholder="Buscar por Correo" value="{{ filtro_email }}">
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+        </div>
+    </form>
+
+    <button class="btn-exportar text-center" onclick="exportarPDF()">Exportar a PDF</button>
+
+    <div class="container reporte-container" id="reporte-pdf">
+        {% include "encabezado_reportes.html" %}
+        <div class="reporte-title">Reporte de Clientes</div>
+        <table class="reporte-table">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Nombre</th>
+                    <th>RIF</th>
+                    <th>NIT</th>
+                    <th>Dirección</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>{{ cliente[0] }}</td>
+                    <td>{{ cliente[1] }}</td>
+                    <td>{{ cliente[2] }}</td>
+                    <td>{{ cliente[3] }}</td>
+                    <td>{{ cliente[4] }}</td>
+                    <td>{{ cliente[5] }}</td>
+                    <td>{{ cliente[6] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function exportarPDF() {
+    var element = document.getElementById('reporte-pdf');
+    html2pdf().from(element).set({
+        margin: 0.5,
+        filename: 'reporte_clientes.pdf',
+        html2canvas: { scale: 1.5 },
+        jsPDF: { orientation: 'landscape', unit: 'in', format: 'letter' }
+    }).save();
+}
+</script>
+
+
+
+
+
+
+
+
+{% endblock %}

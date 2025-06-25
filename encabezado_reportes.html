@@ -1,0 +1,10 @@
+<div class="reporte-empresa mb-4 d-flex flex-column" style="border-bottom:1px solid #e5e7eb; padding-bottom:1rem; margin-bottom:2rem;">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="height:80px; max-width:200px; width:auto; margin-bottom:1rem; display:block; margin-left:auto; margin-right:auto;">
+    <div>
+        <div style="font-size:1.3rem; font-weight:700;">{{ empresa.nombre }}</div>
+        <div><strong>RUC:</strong> {{ empresa.numfiscal }}</div>
+        <div><strong>Dirección:</strong> {{ empresa.direccion }}</div>
+        <div><strong>Usuario:</strong> {{ usuario }}</div>
+        <div><strong>Fecha:</strong> {{ fecha }}</div>
+    </div>
+</div>

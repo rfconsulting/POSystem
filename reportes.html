@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% block title %}POSystem - Reportes{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+
+<style>
+    .tabs-container {
+        background: white;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+
+    .tab-buttons {
+        display: flex;
+        border-bottom: 2px solid #2563EB;
+    }
+
+    .tab-button {
+        flex: 1;
+        padding: 12px;
+        cursor: pointer;
+        background: #f1f5f9;
+        border: none;
+        text-align: center;
+        font-weight: 600;
+        color: #1f2937;
+        transition: background 0.2s;
+    }
+
+    .tab-button.active {
+        background: white;
+        border-bottom: 2px solid white;
+        color: #2563EB;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 20px 0;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+</style>
+
+<div class="tabs-container mb-4">
+    <div class="tab-buttons">
+        <button class="tab-button active" onclick="mostrarTab(event, 'clientes')">Clientes</button>
+        <button class="tab-button" onclick="mostrarTab(event, 'facturas')">Facturas</button>
+        <button class="tab-button" onclick="mostrarTab(event, 'resumen')">Resumen</button>
+    </div>
+
+    <div id="clientes" class="tab-content active">
+        <h2 class="text-center mb-4">Clientes</h2>
+        <form class="row g-3 mb-3" method="get" action="{{ url_for('reportes') }}">
+            <input type="hidden" name="tab" value="clientes">
+            <div class="col-md-3">
+                <input type="text" class="form-control" name="rif" placeholder="Buscar por RUC" value="{{ filtro_rif }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control" name="nombre" placeholder="Buscar por Nombre" value="{{ filtro_nombre }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control" name="dircorreo" placeholder="Buscar por Correo" value="{{ filtro_email }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
+
+        <button class="btn btn-outline-primary mb-3" onclick="exportarPDF('reporte-pdf', 'reporte_clientes.pdf')">Exportar a PDF</button>
+
+        <div class="container reporte-container" id="reporte-pdf">
+            {% include "encabezado_reportes.html" %}
+            <div class="reporte-title">Reporte de Clientes</div>
+            <table class="reporte-table">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Nombre</th>
+                        <th>RIF</th>
+                        <th>NIT</th>
+                        <th>Dirección</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                    <tr>
+                        <td>{{ cliente[0] }}</td>
+                        <td>{{ cliente[1] }}</td>
+                        <td>{{ cliente[2] }}</td>
+                        <td>{{ cliente[3] }}</td>
+                        <td>{{ cliente[4] }}</td>
+                        <td>{{ cliente[5] }}</td>
+                        <td>{{ cliente[6] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="facturas" class="tab-content">
+        <h2 class="text-center mb-4">Reporte de Ventas</h2>
+        <form method="get" class="row g-3 mb-3">
+            <input type="hidden" name="tab" value="facturas">
+            <div class="col-md-2">
+                <input type="text" class="form-control" name="cufe" placeholder="CUFE" value="{{ filtro_cufe }}">
+            </div>
+            <div class="col-md-2">
+                <input type="text" class="form-control" name="ruc" placeholder="RUC" value="{{ filtro_ruc }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control" name="razon_social" placeholder="Razón Social" value="{{ filtro_razon }}">
+            </div>
+            <div class="col-md-2">
+                <input type="date" class="form-control" name="fecha" value="{{ filtro_fecha }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </div>
+        </form>
+
+        <button class="btn btn-outline-primary mb-3" onclick="exportarPDF('reporte-ventas-pdf', 'reporte_ventas.pdf')">Exportar a PDF</button>
+        <div class="container reporte-container" id="reporte-ventas-pdf">
+        <div class="reporte-title">Reporte de Ventas</div>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Tipo Documento</th>
+                    <th>CUFE</th>
+                    <th>Razón Social</th>
+                    <th>RUC</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in ventas %}
+                <tr>
+                    <td>{{ v[0] }}</td>
+                    <td>{{ v[1] }}</td>
+                    <td>{{ v[2] }}</td>
+                    <td>{{ v[3] }}</td>
+                    <td>{{ v[4] }}</td>
+                    <td>{{ v[5] }}</td>
+                    <td>{{ v[6] }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">No hay ventas para mostrar.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="resumen" class="tab-content">
+        <h2 class="text-center mb-4">Resumen</h2>
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Ticket Promedio</h5>
+                        <p class="display-6">${{ dashboard.ticket_promedio|round(2) }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Clientes Nuevos</h5>
+                        <p class="display-6">{{ dashboard.clientes_nuevos }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <canvas id="ventasMesChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <canvas id="clientesMesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function exportarPDF(id, filename) {
+    var element = document.getElementById(id);
+    html2pdf().from(element).set({
+        margin: 0.5,
+        filename: filename,
+        html2canvas: { scale: 1.5 },
+        jsPDF: { orientation: 'landscape', unit: 'in', format: 'letter' }
+    }).save();
+}
+
+function mostrarTab(evt, tabId) {
+    const tabs = document.querySelectorAll('.tab-content');
+    const buttons = document.querySelectorAll('.tab-button');
+    tabs.forEach(t => t.classList.remove('active'));
+    buttons.forEach(b => b.classList.remove('active'));
+
+    document.getElementById(tabId).classList.add('active');
+    evt.currentTarget.classList.add('active');
+}
+
+// Activar la pestaña correcta según el parámetro 'tab' en la URL
+document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab) {
+        const tabBtn = document.querySelector(`.tab-button[onclick*="${tab}"]`);
+        if (tabBtn) tabBtn.click();
+    }
+});
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de ventas mensuales
+    const ventasMesCtx = document.getElementById('ventasMesChart').getContext('2d');
+    new Chart(ventasMesCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ dashboard.ventas_meses|tojson }},
+            datasets: [{
+                label: 'Ventas ($)',
+                data: {{ dashboard.ventas_totales|tojson }},
+                backgroundColor: '#2563EB'
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Gráfico de clientes nuevos por mes
+    const clientesMesCtx = document.getElementById('clientesMesChart').getContext('2d');
+    new Chart(clientesMesCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ dashboard.clientes_meses|tojson }},
+            datasets: [{
+                label: 'Clientes nuevos',
+                data: {{ dashboard.clientes_totales|tojson }},
+                backgroundColor: '#059669'
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+});
+
+</script>
+
+
+{% endblock %}

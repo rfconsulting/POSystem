@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}POSystem - Configuración{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Configuración de ERP</h2>
+
+    <!-- Configuración activa -->
+    <div class="alert alert-secondary">
+        <strong>Configuración activa:</strong><br>
+        <b>Tipo de ERP:</b> {{ erp_tipo|default('No configurado') }}<br>
+        <b>Servidor:</b> {{ host|default('No configurado') }}<br>
+        <b>Base de datos:</b> {{ database|default('No configurado') }}
+    </div>
+
+    <form method="post" action="{{ url_for('configuracion') }}">
+        <div class="mb-3">
+            <label for="erp_tipo" class="form-label">Tipo de ERP</label>
+            <select class="form-select" id="erp_tipo" name="erp_tipo" required>
+                <option value="">Seleccione...</option>
+                <option value="professional_mas" {% if erp_tipo == 'professional_mas' %}selected{% endif %}>Professional MAS</option>
+                <option value="enterprise" {% if erp_tipo == 'enterprise' %}selected{% endif %}>Enterprise</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="host" class="form-label">Host</label>
+            <input type="text" class="form-control" id="host" name="host" required value="{{ host }}">
+        </div>
+        <div class="mb-3">
+            <label for="usuario" class="form-label">Usuario</label>
+            <input type="text" class="form-control" id="usuario" name="usuario" required value="{{ usuario }}">
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="password" name="password" required value="{{ password }}">
+        </div>
+        <div class="mb-3">
+            <label for="database" class="form-label">Base de datos</label>
+            <input type="text" class="form-control" id="database" name="database" required value="{{ database }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar configuración</button>
+    </form>
+    {% if mensaje %}
+        <div class="alert alert-info mt-3">{{ mensaje }}</div>
+    {% endif %}
+</div>
+{% endblock %}
